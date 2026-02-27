@@ -8,8 +8,10 @@ import { webhookMiddleware } from "./src/middleware/webhook_middleware.js";
 
 validateConfig();
 
-const port = process.env.WEB_PORT || 3000;
 const app = express();
+app.set('trust proxy', 1);
+
+const port = process.env.WEB_PORT || 3000;
 const BOT_HANDLE = process.env.GITHUB_APP_HANDLE;
 
 const limiter = rateLimit({
