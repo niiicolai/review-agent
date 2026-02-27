@@ -7,9 +7,9 @@ const requiredEnvVars = [
 
 const optionalEnvVars = [
   'WEB_PORT',
+  'GITHUB_APP_HANDLE',
   'OLLAMA_URL',
   'OLLAMA_MODEL',
-  'GITHUB_APP_HANDLE',
 ];
 
 export function validateConfig() {

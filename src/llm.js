@@ -6,7 +6,7 @@ import { ChatOllama } from "@langchain/ollama";
 import { ChatOpenAI } from "@langchain/openai";
 
 /*
-const llm = new ChatOllama({
+export const llm = new ChatOllama({
     baseUrl: process.env.OLLAMA_URL,
     model: process.env.OLLAMA_MODEL,
     temperature: 0,
