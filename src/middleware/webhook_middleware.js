@@ -17,7 +17,7 @@ export function webhookMiddleware(req, res, next) {
   const hmac = crypto.createHmac("sha256", secret);
 
   if (!req.rawBody) {
-    return res.status(401).send("Missing raw body");
+    return res.status(401).send("Unauthorized");
   }
 
   const digest = "sha256=" + hmac.update(req.rawBody).digest("hex");

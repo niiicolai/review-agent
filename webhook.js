@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json({
   limit: '50kb',
   verify: (req, res, buf) => {
-    req.rawBody = buf.toString();
+    req.rawBody = buf;
   }
 }));
 
