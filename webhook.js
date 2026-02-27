@@ -22,7 +22,7 @@ app.post('/webhook-event', webhookMiddleware, async (req, res) => {
       await reviewQueue.add("review-pr", { payload: req.body });
     }
 
-    if (comment && action === 'created' && BOT_HANDLE) {
+    if (comment && action === 'created' && BOT_HANDLE && typeof comment.body === 'string') {
       const mention = `@${BOT_HANDLE}`;
       if (comment.body.includes(mention)) {
         await reviewQueue.add("reply-comment", { payload: req.body });
