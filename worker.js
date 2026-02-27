@@ -2,6 +2,11 @@ import 'dotenv/config';
 import { Worker } from "bullmq";
 import { processPR } from "./src/queue/processPr.js";
 
+const redisUrl = process.env.REDIS_URL;
+if (!redisUrl) {
+  throw new Error("REDIS_URL environment variable is required");
+}
+
 new Worker(
   "review",
   async job => {
@@ -9,5 +14,5 @@ new Worker(
       await processPR(job.data.payload);
     }
   },
-  { connection: { url: process.env.REDIS_URL } }
+  { connection: { url: redisUrl } }
 );

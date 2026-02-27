@@ -1,13 +1,26 @@
 import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
+import { ChatOllama } from "@langchain/ollama";
+import { ChatOpenAI } from "@langchain/openai";
 
 const GITHUB_API = "https://api.github.com";
-const OLLAMA_API = `${process.env.OLLAMA_URL}/api/generate`;
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL;
 
 const appId = process.env.GITHUB_APP_ID;
 const privateKey = fs.readFileSync(path.join(process.cwd(), "private-key.pem"), "utf8");
+
+/*
+const llm = new ChatOllama({
+    baseUrl: process.env.OLLAMA_URL,
+    model: process.env.OLLAMA_MODEL,
+    temperature: 0,
+    maxRetries: 2,
+});*/
+
+const llm = new ChatOpenAI({
+  model: process.env.OPENAI_MODEL,
+  temperature: 0,
+})
 
 export async function processPR(payload) {
   const { repository, pull_request, installation } = payload;
@@ -49,6 +62,7 @@ export async function processPR(payload) {
       });
     }
   }
+      console.log(allComments)
 
   if (allComments.length > 0) {
     await postReviewComments({
@@ -73,35 +87,22 @@ Only report serious:
 
 Ignore style and formatting.
 
-Return strict JSON:
+Diff:
+${file.patch}
+
+THE OUTPUT MUST ONLY BE JSON!
+
+E.g.
 [
   { "line": number, "comment": "text" }
 ]
-
-Diff:
-${file.patch}
 `;
 
-  const response = await fetch(OLLAMA_API, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      prompt,
-      stream: false,
-      options: {
-        temperature: 0.1,
-        top_p: 0.8,
-      },
-    }),
-  });
-
-  const data = await response.json();
-
   try {
-    return JSON.parse(data.response);
+    const response = await llm.invoke(prompt);
+    return JSON.parse(response.content);
   } catch (err) {
-    console.error("LLM returned invalid JSON");
+    console.error("LLM returned invalid JSON", err);
     return [];
   }
 }
@@ -129,11 +130,18 @@ async function getInstallationToken(installationId) {
     }
   );
 
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`Failed to get installation token: ${JSON.stringify(err)}`);
+  }
+
   const data = await res.json();
   return data.token;
 }
 
 async function postReviewComments({ token, owner, repo, pullNumber, commitId, comments }) {
+  const body = comments.map(c => `**${c.path}:${c.line}**\n${c.body}`).join("\n\n---\n\n");
+
   const res = await fetch(
     `${GITHUB_API}/repos/${owner}/${repo}/pulls/${pullNumber}/reviews`,
     {
@@ -145,13 +153,18 @@ async function postReviewComments({ token, owner, repo, pullNumber, commitId, co
       body: JSON.stringify({
         event: "COMMENT",
         commit_id: commitId,
-        comments: comments.map(c => ({
-          path: c.path,
-          line: c.line,
-          body: c.body,
-        })),
+        body,
       }),
     }
   );
-  return res.json();
+
+  if (!res.ok) {
+    const err = await res.json();
+    console.error("Review error:", err);
+    throw new Error(`Failed to post review: ${JSON.stringify(err)}`);
+  }
+
+  const data = await res.json();
+  console.log("Review response:", data);
+  return data;
 }
