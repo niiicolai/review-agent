@@ -15,8 +15,12 @@ app.use(express.json({
 
 app.post('/webhook-event', webhookMiddleware, async (req, res) => {
   try {
+    const { action, pull_request } = req.body;
 
-    await reviewQueue.add("review-pr", { payload: req.body });
+    if (pull_request && (action === 'opened' || action === 'synchronize')) {
+      await reviewQueue.add("review-pr", { payload: req.body });
+    }
+    
     res.sendStatus(204);
   } catch {
     res.sendStatus(500);
