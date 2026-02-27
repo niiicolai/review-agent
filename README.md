@@ -97,3 +97,37 @@ GitHub Webhook → Webhook Server → Redis Queue → Worker → GitHub API
 - `src/jobs/processComment.js` - Comment reply logic
 - `src/services/github_service.js` - GitHub API interactions
 - `src/prompts/` - LLM prompt templates
+
+## Customization
+
+### Adding New File Extensions
+
+To process additional file types in PR reviews, edit the file extension regex in `src/jobs/processPr.js` at line 22:
+
+```js
+// Current extensions: js, ts, py, go, java, tsx, rs
+f.filename.match(/\.(js|ts|py|go|java|tsx|rs)$/)
+```
+
+Add your desired extension to the regex. For example, to add Ruby and C++:
+
+```js
+f.filename.match(/\.(js|ts|py|go|java|tsx|rs|ruby|cpp)$/)
+```
+
+### Switching LLM Provider
+
+The LLM is configured in `src/llm.js`. By default, it uses OpenAI. To use Ollama instead:
+
+1. Uncomment the `ChatOllama` block in `src/llm.js`
+2. Comment out the `ChatOpenAI` block
+3. Ensure `OLLAMA_URL` and `OLLAMA_MODEL` are set in your `.env` file
+
+```js
+export const llm = new ChatOllama({
+    baseUrl: process.env.OLLAMA_URL,
+    model: process.env.OLLAMA_MODEL,
+    temperature: 0,
+    maxRetries: 2,
+});
+```
