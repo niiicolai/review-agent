@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import logger from "./src/config/logger.js";
 import { validateConfig } from "./src/config/config.js";
 import { reviewQueue } from "./src/config/queue.js";
+import { getTokenCounts, resetTokenCounts } from "./src/config/tokens.js";
 import { webhookMiddleware } from "./src/middleware/webhook_middleware.js";
 
 validateConfig();
@@ -35,20 +36,41 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/tokens', async (req, res) => {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== process.env.API_KEY) {
+    return res.sendStatus(401);
+  }
+  const counts = await getTokenCounts();
+  res.json(counts);
+});
+
+app.delete('/tokens', async (req, res) => {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey !== process.env.API_KEY) {
+    return res.sendStatus(401);
+  }
+  await resetTokenCounts();
+  res.json({ status: 'reset' });
+});
+
 app.post('/webhook-event', webhookMiddleware, async (req, res) => {
   try {
     const { action, pull_request, comment } = req.body;
+    logger.info({ action }, "New webhook Event");
 
-    if (pull_request && (action === 'opened' || action === 'synchronize')) {
+    if (pull_request && (action === 'opened' || action === 'reopened' || action === 'synchronize')) {
       await reviewQueue.add("review-pr", { payload: req.body });
       logger.info({ action, repo: pull_request.head.repo.full_name, pr: pull_request.number }, "PR review queued");
     }
 
     if (comment && action === 'created' && BOT_HANDLE && typeof comment.body === 'string') {
       const mention = `@${BOT_HANDLE}`;
-      if (comment.body.includes(mention)) {
-        await reviewQueue.add("reply-comment", { payload: req.body });
-        logger.info({ issue: comment.id }, "Comment reply queued");
+      const issueNumber = comment.issue_url?.split('/')?.pop();
+
+      if (comment.body.includes(mention) && !isNaN(issueNumber)) {
+        await reviewQueue.add("reply-comment", { payload: { ...req.body, issueNumber } });
+        logger.info({ issue: issueNumber }, "Comment reply queued");
       }
     }
     

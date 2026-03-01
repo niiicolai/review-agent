@@ -7,12 +7,12 @@ Only report serious:
 
 Ignore style and formatting.
 
-Diff:
+Diffs:
 <INSERT-DIFF>
 
 THE OUTPUT MUST ONLY BE JSON!
 
-E.g.
+E.g:
 [
-  { "line": number, "comment": "text" }
+  { "filename": "src/index.ts", "line": 10, "comment": "text" }
 ]

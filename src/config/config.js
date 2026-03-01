@@ -3,6 +3,7 @@ const requiredEnvVars = [
   'GITHUB_APP_ID',
   'GITHUB_WEBHOOK_SECRET',
   'OPENAI_API_KEY',
+  'API_KEY',
 ];
 
 const optionalEnvVars = [
@@ -10,6 +11,10 @@ const optionalEnvVars = [
   'GITHUB_APP_HANDLE',
   'ENABLE_MCP_CLIENT',
   'ENABLE_SHORT_MEMORY',
+  'FILE_EXTENSIONS',
+  'MAX_FILES_TO_REVIEW',
+  'FILES_PER_BATCH',
+  'MAX_TOKENS_ALLOWED',
   'SHORT_MEMORY_MAX_MESSAGES',
   'OLLAMA_URL',
   'OLLAMA_MODEL',

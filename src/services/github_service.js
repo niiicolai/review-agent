@@ -110,3 +110,42 @@ export async function postComment({ token, owner, repo, issueNumber, body }) {
   logger.info({ owner, repo, issueNumber, commentId: data.id }, "Comment posted");
 }
 
+export async function searchCode({ token, owner, repo, query }) {
+  console.log(`${GITHUB_API}/search/code?q=${encodeURIComponent(query)}+repo:${owner}/${repo}`)
+  const res = await fetch(
+    `${GITHUB_API}/search/code?q=${encodeURIComponent(query)}+repo:${owner}/${repo}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`Search failed: ${JSON.stringify(err)}`);
+  }
+
+  return res.json();
+}
+
+export async function getFileContent({ token, owner, repo, path }) {
+  const res = await fetch(
+    `${GITHUB_API}/repos/${owner}/${repo}/contents/${path}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/vnd.github+json",
+      },
+    }
+  );
+
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(`Failed to get file: ${JSON.stringify(err)}`);
+  }
+
+  return res.json();
+}
+

@@ -1,141 +1,202 @@
-# Review Agent
+<h1 align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11a8c7,100:5e17eb&height=300&section=header&text=Review%20Agent&fontSize=80&animation=fadeIn&fontAlignY=35" />
+</h1>
 
-AI-powered GitHub Pull Request reviewer and comment responder bot.
+<div align="center">
+
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/niiicolai/review-agent/ci.yml?branch=main)](https://github.com/niiicolai/review-agent/actions)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-green)](https://nodejs.org)
+
+
+</div>
+
+<br />
+
+**Review Agent** is an AI-powered code review assistant that automatically reviews pull requests and replies to comments using LLMs. Think of it as an always-available senior engineer on your team.
+
+<br />
+
+## Why Review Agent?
+
+- 🚀 **Instant Feedback** - Every PR gets reviewed within seconds
+- 💰 **Cost Effective** - Batch processing and token tracking keep costs under control
+- 🔌 **Flexible** - Use OpenAI, Ollama, or any LLM provider
+- 🧠 **Context Aware** - Connect MCP servers for up-to-date documentation
+- 🔒 **Private** - Runs on your infrastructure, your data stays yours
+
+<br />
+
+## Quick Start
+
+```bash
+# Clone & install
+git clone https://github.com/niiicolai/review-agent.git
+cd review-agent
+npm install
+
+# Configure
+cp .env.example .env
+# Edit .env with your credentials
+
+# Run
+docker-compose up --build
+```
+
+<br />
 
 ## Features
 
-- **Automated PR Reviews** - Analyzes pull request diffs using LLM and posts review comments
-- **Comment Replies** - Responds to mentions in issues/PRs using AI
-- **MCP Client Support** - Connect the agent to documentation MCP servers to get updated information
-- **Short-term Memory** - The agent implements a short term memory with PR and Issue number filtering
+### 🤖 Automated PR Reviews
+Analyzes pull request diffs and posts constructive feedback on bugs, security issues, and performance problems.
+
+### 💬 Intelligent Comment Replies
+Responds to @mentions in issues and PRs with context-aware answers powered by AI.
+
+### 🔗 MCP Integration
+Connect to Model Context Protocol servers to give your agent access to up-to-date documentation and tools.
+
+### 📊 Token Monitoring
+Built-in Redis tracking shows exactly how many tokens you're spending.
+
+### 🔍 Code Search
+The agent can search your codebase directly to find relevant code and answer questions about your project.
+
+### ⚡ Rate Limiting & Batching
+Configure file limits and batch sizes to optimize API usage and avoid rate limits.
+
+<br />
 
 ## Requirements
 
-- Node.js 20+
-- Redis
-- OpenAI API key (or Ollama for local models)
-- GitHub App credentials
+| Component | Version |
+|-----------|---------|
+| Node.js   | 20+     |
+| Redis     | Latest  |
+| LLM       | OpenAI / Ollama |
+
+<br />
 
 ## Setup
 
 ### 1. Create a GitHub App
 
 1. Go to [GitHub Developer Settings](https://github.com/settings/apps/new)
-2. Set the following:
+2. Configure:
    - **Homepage URL**: Your app's URL
    - **Webhook URL**: Your server URL + `/webhook-event`
-   - **Webhook secret**: Generate using `npm run generate:secret`
+   - **Webhook secret**: `npm run generate:secret`
 3. **Permissions**:
    - Pull requests: Read & Write
    - Contents: Read
    - Issues: Read & Write
    - Issue comments: Read & Write
-4. **Subscribe to events**:
-   - Pull request
-   - Issue comment
-5. Install the app on your repositories
+4. **Subscribe to events**: Pull request, Issue comment
+5. Install on your repositories
 
-### 2. Configure Environment
-
-Create a `.env` file:
+### 2. Environment Variables
 
 ```bash
 # Required
 REDIS_URL=redis://localhost:6379
 GITHUB_APP_ID=your_app_id
 GITHUB_WEBHOOK_SECRET=your_webhook_secret
-OPENAI_API_KEY=your_openai_key
+OPENAI_API_KEY=sk-...
 
 # Optional
-WEB_PORT=3000                        # HTTP server port
-ENABLE_MCP_CLIENT=1                  # Enable MCP client tools
-ENABLE_SHORT_MEMORY=1                # Enable short memory
-SHORT_MEMORY_MAX_MESSAGES=2          # Set short memory max messages
-GITHUB_BOT_HANDLE=your_bot_username  # Bot will respond to @mentions
-OLLAMA_URL=http://localhost:11434    # Use local Ollama instead of OpenAI
-OLLAMA_MODEL=llama3                  # Ollama model name
-LOG_LEVEL=info
+WEB_PORT=3000
+GITHUB_BOT_HANDLE=your_bot_username
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+API_KEY=your_secure_key
+
+# Features
+ENABLE_MCP_CLIENT=1
+ENABLE_SHORT_TERM_MEMORY=1
+
+# Rate limiting
+MAX_FILES_TO_REVIEW=20
+FILES_PER_BATCH=10
 ```
 
 ### 3. Add Private Key
 
 Place your GitHub App private key (`private-key.pem`) in the project root.
 
-## Development
-
-```bash
-# Install dependencies
-npm install
-
-# Run webhook server
-npm run webhook
-
-# Run worker (separate terminal)
-npm run worker
-```
-
-## Docker
-
-```bash
-# Build and run with Docker Compose
-docker-compose up --build
-```
-
-This starts:
-- `webhook` - HTTP server on port 3000
-- `worker` - Queue processor
-- `redis` - Message broker
-
-## GitHub Pages
-
-The documentation site is generated from this README.md and hosted at `https://niiicolai.github.io/review-agent/`
-
-### Testing Locally
-
-```bash
-npm run serve:docs
-```
-
-Then open `http://localhost:3000` in your browser.
+<br />
 
 ## Architecture
 
 ```
-GitHub Webhook → Webhook Server → Redis Queue → Worker → GitHub API
-                     ↓                                   ↓
-               Health Check                         LLM Review
+┌─────────────┐     ┌─────────────┐     ┌─────────┐     ┌─────────┐     ┌─────────────┐
+│   GitHub    │────▶│   Webhook   │────▶│  Redis  │────▶│ Worker  │────▶│  GitHub API │
+│   Webhook   │     │   Server    │     │  Queue  │     │         │     │             │
+└─────────────┘     └─────────────┘     └─────────┘     └─────────┘     └─────────────┘
+                                                                                  │
+                                                                                  ▼
+                                                                           ┌─────────────┐
+                                                                           │     LLM     │
+                                                                           │   (GPT-4)   │
+                                                                           └─────────────┘
 ```
 
-### Key Files
+<br />
 
-- `webhook.js` - Express server handling GitHub webhooks
-- `worker.js` - BullMQ worker processing queue jobs
-- `src/jobs/processPr.js` - PR review logic
-- `src/jobs/processComment.js` - Comment reply logic
-- `src/services/github_service.js` - GitHub API interactions
-- `src/prompts/` - LLM prompt templates
+## API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check |
+| `/tokens` | GET | Get token usage (requires `X-API-Key`) |
+| `/tokens` | DELETE | Reset token counter |
+
+```bash
+# Check token usage
+curl -H "X-API-Key: your_api_key" http://localhost:3000/tokens
+
+# Reset counters
+curl -X DELETE -H "X-API-Key: your_api_key" http://localhost:3000/tokens
+```
+
+<br />
 
 ## Customization
 
-### Adding New File Extensions
-
-Configure which file types to review using the `GITHUB_FILE_EXTENSIONS` environment variable (comma-separated):
-
+### File Extensions
 ```bash
-# Default: js,ts,py,go,java,tsx,rs
-GITHUB_FILE_EXTENSIONS=js,ts,py,go,java,tsx,rs,ruby,cpp
+GITHUB_FILE_EXTENSIONS=js,ts,py,go,java,tsx,rs,ruby
+```
+
+### Search Tools (Built-in)
+The agent has built-in tools to search the codebase:
+
+- `search_code` - Search for code across the repository
+- `get_file_content` - Read file contents
+
+Enable/disable:
+```bash
+ENABLE_SEARCH_TOOLS=1  # default: enabled
+```
+
+### MCP Servers
+```js
+// src/agent/mcpClient.js
+const mcpClient = new MultiServerMCPClient({  
+    server_name: {
+        transport: "http",
+        url: "http://localhost:3001",
+    },
+});
 ```
 
 ### Switching LLM Provider
-
-The LLM is configured in `src/agent/llm.js`. By default, it uses OpenAI. To use Ollama instead:
-
-1. Uncomment the `ChatOllama` block in `src/agent/llm.js`
-2. Comment out the `ChatOpenAI` block
-3. Ensure `OLLAMA_URL` and `OLLAMA_MODEL` are set in your `.env` file
+The default uses OpenAI. To use Ollama instead:
 
 ```js
-export const llm = new ChatOllama({
+// src/agent/llm.js
+import { ChatOllama } from "@langchain/ollama";
+
+export const model = new ChatOllama({
     baseUrl: process.env.OLLAMA_URL,
     model: process.env.OLLAMA_MODEL,
     temperature: 0,
@@ -143,25 +204,14 @@ export const llm = new ChatOllama({
 });
 ```
 
-### Adding MCP Servers
+<br />
 
-The agent can connect to MCP (Model Context Protocol) servers to access external tools and documentation. Edit `src/agent/mcpClient.js`:
+## Contributing
 
-```js
-import { MultiServerMCPClient } from "@langchain/mcp-adapters";  
+Contributions are welcome! Feel free to open issues and pull requests.
 
-const mcpClient = new MultiServerMCPClient({  
-    // Add your MCP servers here
-    server_name: {
-        transport: "http",  // or "stdio" for local commands
-        url: "http://localhost:3001",
-        // For stdio transport:
-        // command: "npx",
-        // args: ["-y", "@some/mcp-server"],
-    },
-});
+<br />
 
-export const tools = await mcpClient.getTools();  
-```
+## License
 
-The tools from your MCP servers will be automatically available to the LLM during PR reviews.
+MIT

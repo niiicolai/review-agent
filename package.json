@@ -6,7 +6,7 @@
   "author": "",
   "type": "module",
   "main": "index.js",
-"scripts": {
+  "scripts": {
     "webhook": "node ./webhook.js",
     "worker": "node ./worker.js",
     "generate:secret": "node ./src/scripts/generate_secret.js",
@@ -21,6 +21,7 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "langchain": "^1.2.28",
     "pino": "^10.3.1",

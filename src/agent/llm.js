@@ -13,10 +13,8 @@
  * });
  */
 
-//
 import { ChatOpenAI } from "@langchain/openai";
 import logger from "../config/logger.js";
-
 
 export const model = new ChatOpenAI({
   model: process.env.OPENAI_MODEL,
