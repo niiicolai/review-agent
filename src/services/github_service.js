@@ -111,7 +111,7 @@ export async function postComment({ token, owner, repo, issueNumber, body }) {
 }
 
 export async function searchCode({ token, owner, repo, query }) {
-  console.log(`${GITHUB_API}/search/code?q=${encodeURIComponent(query)}+repo:${owner}/${repo}`)
+
   const res = await fetch(
     `${GITHUB_API}/search/code?q=${encodeURIComponent(query)}+repo:${owner}/${repo}`,
     {
