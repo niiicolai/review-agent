@@ -24,9 +24,10 @@ export async function processPR(payload) {
   const pullNumber = pull_request.number;
 
   const currentTokens = await getTokenCounts();
+
   logger.info({ owner, repo, pullNumber, tokensSpent: currentTokens.total }, "Processing PR review");
 
-  if (currentTokens >= MAX_TOKENS_ALLOWED) {
+  if (currentTokens.total >= MAX_TOKENS_ALLOWED) {
     logger.error({ currentTokens }, "Max allowed tokens reached.");
     return;
   }

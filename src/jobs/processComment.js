@@ -23,7 +23,7 @@ export async function processComment(payload) {
   const currentTokens = await getTokenCounts();
 
   logger.info({ owner, repo, issueNumber, user: comment.user.login, tokensSpent: currentTokens.total }, "Processing comment reply");
-  if (currentTokens >= MAX_TOKENS_ALLOWED) {
+  if (currentTokens.total >= MAX_TOKENS_ALLOWED) {
     logger.error({ currentTokens }, "Max allowed tokens reached.");
     return;
   }
