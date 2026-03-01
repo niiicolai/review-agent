@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import logger from "../config/logger.js";
 
 const secret = process.env.GITHUB_WEBHOOK_SECRET;
 
@@ -6,11 +7,11 @@ export function webhookMiddleware(req, res, next) {
   const signature = req.headers["x-hub-signature-256"];
 
   if (!signature) {
-    return res.status(401).send("Missing signature");
+    return res.status(401).send("Unauthorized");
   }
 
   if (!secret) {
-    console.error("Missing GITHUB_WEBHOOK_SECRET");
+    logger.error({}, "Webhook Middleware: Missing GITHUB_WEBHOOK_SECRET");
     return res.status(500).send("Server misconfigured");
   }
 
@@ -28,7 +29,7 @@ export function webhookMiddleware(req, res, next) {
     sigBuffer.length !== digestBuffer.length ||
     !crypto.timingSafeEqual(sigBuffer, digestBuffer)
   ) {
-    return res.status(401).send("Invalid signature");
+    return res.status(401).send("Unauthorized");
   }
 
   next();

@@ -8,6 +8,9 @@ const requiredEnvVars = [
 const optionalEnvVars = [
   'WEB_PORT',
   'GITHUB_APP_HANDLE',
+  'ENABLE_MCP_CLIENT',
+  'ENABLE_SHORT_MEMORY',
+  'SHORT_MEMORY_MAX_MESSAGES',
   'OLLAMA_URL',
   'OLLAMA_MODEL',
 ];

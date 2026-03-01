@@ -1,9 +1,10 @@
 import { getInstallationToken, getPullRequestFiles, postReviewComments } from "../services/github_service.js";
-import { llm } from "../llm.js";
-import { loadPrompt } from "../prompts/index.js";
-import logger from "../logger.js";
+import { loadPrompt } from "../prompts/_loadPrompt.js";
+import { agent } from "../agent/agent.js";
+import logger from "../config/logger.js";
 
-const BOT_HANDLE = process.env.GITHUB_APP_HANDLE;
+const BOT_HANDLE = process.env.GITHUB_BOT_HANDLE;
+const FILE_EXTENSIONS = process.env.FILE_EXTENSIONS || "js,ts,py,go,java,tsx,rs";
 
 function removeBotMention(text) {
   if (!BOT_HANDLE) return text;
@@ -22,17 +23,19 @@ export async function processPR(payload) {
   const token = await getInstallationToken(installation.id);
 
   const files = await getPullRequestFiles({ token, owner, repo, pullNumber });
+  const extensions = FILE_EXTENSIONS.split(",").map(e => e.trim());
+  const extRegex = new RegExp(`\\.(${extensions.join("|")})$`);
   const reviewableFiles = files.filter(
     f =>
       f.status !== "removed" &&
       f.patch &&
-      f.filename.match(/\.(js|ts|py|go|java|tsx|rs)$/)
+      f.filename.match(extRegex)
   );
 
   const allComments = [];
 
   for (const file of reviewableFiles) {
-    const comments = await reviewFileWithLLM(file);
+    const comments = await reviewFileWithLLM(file, pullNumber);
 
     for (const comment of comments) {
       const sanitizedComment = removeBotMention(comment.comment);
@@ -58,11 +61,14 @@ export async function processPR(payload) {
   }
 }
 
-async function reviewFileWithLLM(file) {
+async function reviewFileWithLLM(file, pullNumber) {
   const prompt = loadPrompt("review-pr", { DIFF: file.patch });
 
   try {
-    const response = await llm.invoke(prompt);
+    const response = await agent.invoke(
+      { messages: [{ role: 'user', content: prompt }] },
+      { configurable: { pullNumber } }
+    );
     return JSON.parse(response.content);
   } catch (err) {
     logger.error({ err, file: file.filename }, "LLM returned invalid JSON");

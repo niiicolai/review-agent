@@ -6,6 +6,8 @@ AI-powered GitHub Pull Request reviewer and comment responder bot.
 
 - **Automated PR Reviews** - Analyzes pull request diffs using LLM and posts review comments
 - **Comment Replies** - Responds to mentions in issues/PRs using AI
+- **MCP Client Support** - Connect the agent to documentation MCP servers to get updated information
+- **Short-term Memory** - The agent implements a short term memory with PR and Issue number filtering
 
 ## Requirements
 
@@ -45,8 +47,11 @@ GITHUB_WEBHOOK_SECRET=your_webhook_secret
 OPENAI_API_KEY=your_openai_key
 
 # Optional
-WEB_PORT=3000
-GITHUB_APP_HANDLE=your_bot_username  # Bot will respond to @mentions
+WEB_PORT=3000                        # HTTP server port
+ENABLE_MCP_CLIENT=1                  # Enable MCP client tools
+ENABLE_SHORT_MEMORY=1                # Enable short memory
+SHORT_MEMORY_MAX_MESSAGES=2          # Set short memory max messages
+GITHUB_BOT_HANDLE=your_bot_username  # Bot will respond to @mentions
 OLLAMA_URL=http://localhost:11434    # Use local Ollama instead of OpenAI
 OLLAMA_MODEL=llama3                  # Ollama model name
 LOG_LEVEL=info
@@ -81,6 +86,18 @@ This starts:
 - `worker` - Queue processor
 - `redis` - Message broker
 
+## GitHub Pages
+
+The documentation site is generated from this README.md and hosted at `https://niiicolai.github.io/review-agent/`
+
+### Testing Locally
+
+```bash
+npm run serve:docs
+```
+
+Then open `http://localhost:3000` in your browser.
+
 ## Architecture
 
 ```
@@ -102,24 +119,18 @@ GitHub Webhook → Webhook Server → Redis Queue → Worker → GitHub API
 
 ### Adding New File Extensions
 
-To process additional file types in PR reviews, edit the file extension regex in `src/jobs/processPr.js` at line 22:
+Configure which file types to review using the `GITHUB_FILE_EXTENSIONS` environment variable (comma-separated):
 
-```js
-// Current extensions: js, ts, py, go, java, tsx, rs
-f.filename.match(/\.(js|ts|py|go|java|tsx|rs)$/)
-```
-
-Add your desired extension to the regex. For example, to add Ruby and C++:
-
-```js
-f.filename.match(/\.(js|ts|py|go|java|tsx|rs|ruby|cpp)$/)
+```bash
+# Default: js,ts,py,go,java,tsx,rs
+GITHUB_FILE_EXTENSIONS=js,ts,py,go,java,tsx,rs,ruby,cpp
 ```
 
 ### Switching LLM Provider
 
-The LLM is configured in `src/llm.js`. By default, it uses OpenAI. To use Ollama instead:
+The LLM is configured in `src/agent/llm.js`. By default, it uses OpenAI. To use Ollama instead:
 
-1. Uncomment the `ChatOllama` block in `src/llm.js`
+1. Uncomment the `ChatOllama` block in `src/agent/llm.js`
 2. Comment out the `ChatOpenAI` block
 3. Ensure `OLLAMA_URL` and `OLLAMA_MODEL` are set in your `.env` file
 
@@ -131,3 +142,26 @@ export const llm = new ChatOllama({
     maxRetries: 2,
 });
 ```
+
+### Adding MCP Servers
+
+The agent can connect to MCP (Model Context Protocol) servers to access external tools and documentation. Edit `src/agent/mcpClient.js`:
+
+```js
+import { MultiServerMCPClient } from "@langchain/mcp-adapters";  
+
+const mcpClient = new MultiServerMCPClient({  
+    // Add your MCP servers here
+    server_name: {
+        transport: "http",  // or "stdio" for local commands
+        url: "http://localhost:3001",
+        // For stdio transport:
+        // command: "npx",
+        // args: ["-y", "@some/mcp-server"],
+    },
+});
+
+export const tools = await mcpClient.getTools();  
+```
+
+The tools from your MCP servers will be automatically available to the LLM during PR reviews.

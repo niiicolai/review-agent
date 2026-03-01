@@ -1,9 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 import rateLimit from 'express-rate-limit';
-import logger from "./src/logger.js";
-import { validateConfig } from "./src/config.js";
-import { reviewQueue } from "./src/queue/queue.js";
+import logger from "./src/config/logger.js";
+import { validateConfig } from "./src/config/config.js";
+import { reviewQueue } from "./src/config/queue.js";
 import { webhookMiddleware } from "./src/middleware/webhook_middleware.js";
 
 validateConfig();
@@ -12,7 +12,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 const port = process.env.WEB_PORT || 3000;
-const BOT_HANDLE = process.env.GITHUB_APP_HANDLE;
+const BOT_HANDLE = process.env.GITHUB_BOT_HANDLE;
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,

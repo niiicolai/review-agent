@@ -1,9 +1,9 @@
 import 'dotenv/config';
 import { Worker } from "bullmq";
-import { validateConfig } from "./src/config.js";
-import logger from "./src/logger.js";
+import { validateConfig } from "./src/config/config.js";
 import { processPR } from "./src/jobs/processPr.js";
 import { processComment } from "./src/jobs/processComment.js";
+import logger from "./src/config/logger.js";
 
 validateConfig();
 
