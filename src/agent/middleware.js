@@ -35,8 +35,8 @@ export function trimMessagesSafely(messages, maxMessages) {
   while (trimmed.length > maxMessages) {
     const first = trimmed[0];
     const second = trimmed[1];
-    const firstType = first?._getType();
-    const secondType = second?._getType();
+    const firstType = first?._getType?.() ?? first?.type;
+    const secondType = second?._getType?.() ?? second?.type;
 
     if (
       firstType === "human" &&
