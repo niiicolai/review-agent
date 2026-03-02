@@ -1,10 +1,10 @@
 <h1 align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11a8c7,100:5e17eb&height=300&section=header&text=Review%20Agent&fontSize=80&animation=fadeIn&fontAlignY=35" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=0:11a8c7,100:5e17eb&height=300&section=header&text=CoPR%20Agent&fontSize=80&animation=fadeIn&fontAlignY=35" />
 </h1>
 
 <div align="center">
 
-[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/niiicolai/review-agent/ci.yml?branch=main)](https://github.com/niiicolai/review-agent/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/niiicolai/copr-agent/ci.yml?branch=main)](https://github.com/niiicolai/copr-agent/actions)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Node.js](https://img.shields.io/badge/Node.js-20%2B-green)](https://nodejs.org)
 
@@ -13,11 +13,11 @@
 
 <br />
 
-**Review Agent** is an AI-powered code review assistant that automatically reviews pull requests and replies to comments using LLMs.
+**CoPR Agent** is an AI-powered code review assistant that automatically reviews pull requests and replies to comments using LLMs.
 
 <br />
 
-## Why Review Agent?
+## Why CoPR Agent?
 
 - **Instant Feedback** - Every PR gets reviewed within seconds
 - **Cost Effective** - Batch processing and token tracking keep costs under control
@@ -33,8 +33,8 @@
 
 ```bash
 # Clone & install
-git clone https://github.com/niiicolai/review-agent.git
-cd review-agent
+git clone https://github.com/niiicolai/copr-agent.git
+cd copr-agent
 npm install
 
 # Configure
@@ -89,13 +89,13 @@ Configure the vector store, LLM, and embeddings models to suit your needs.
 ## Examples
 
 ### General Security Issues
-![General security demo](/review-agent/examples/general-security-demo.png)
+![General security demo](/copr-agent/examples/general-security-demo.png)
 
 ### Get latest documentation using MCP
-![Latest docs MCP demo](/review-agent/examples/latest-docs-mcp-demo.png)
+![Latest docs MCP demo](/copr-agent/examples/latest-docs-mcp-demo.png)
 
 ### Use internal business logic with RAG
-![Internal docs RAG demo](/review-agent/examples/internal-docs-rag-demo.png)
+![Internal docs RAG demo](/copr-agent/examples/internal-docs-rag-demo.png)
 
 <br />
 
