@@ -41,7 +41,7 @@ if (ENABLE_MCP_CLIENT) {
 }
 
 if (ENABLE_RAG_TOOL) {
-  tools.push(...retrieve);
+  tools.push(retrieve);
 }
 
 middleware.push(createMiddleware({ 
@@ -65,6 +65,7 @@ if (ENABLE_SHORT_TERM_MEMORY) {
 }
 
 logger.info({
+  rag_enabled: ENABLE_RAG_TOOL,
   mcp_client_enabled: ENABLE_MCP_CLIENT,
   search_tools_enabled: ENABLE_SEARCH_TOOLS,
   short_term_memory_enabled: ENABLE_SHORT_TERM_MEMORY,

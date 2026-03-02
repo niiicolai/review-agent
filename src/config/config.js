@@ -20,6 +20,9 @@ const optionalEnvVars = [
   'OLLAMA_MODEL',
   'MONGODB_URL',
   'SQLITE_CHECKPOINT_PATH',
+  'MONGODB_ATLAS_URI',
+  'MONGODB_ATLAS_DB_NAME',
+  'MONGODB_ATLAS_COLLECTION_NAME',
 ];
 
 export function validateConfig() {
