@@ -134,7 +134,7 @@ Place your GitHub App private key (`private-key.pem`) in the project root.
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────┐     ┌─────────┐     ┌─────────────┐
-│   GitHub    │────▶│   Webhook   │────▶│  Redis  │────▶│ Worker  │────▶│  GitHub API │
+│   GitHub     ────▶   Webhook    ────▶  Redis    ────▶  Worker  ────▶  GitHub API  │
 │   Webhook   │     │   Server    │     │  Queue  │     │         │     │             │
 └─────────────┘     └─────────────┘     └─────────┘     └─────────┘     └─────────────┘
                                                                                   │
@@ -181,6 +181,17 @@ The agent has built-in tools to search the codebase:
 Enable/disable:
 ```bash
 ENABLE_SEARCH_TOOLS=1  # default: enabled
+```
+
+### Short-Term Memory
+When `ENABLE_SHORT_TERM_MEMORY=1` is set, the agent persists conversation history using SQLite. This allows the agent to maintain context across multiple interactions within the same thread.
+
+- **Storage**: SQLite database (default: `./checkpoints.db`)
+- **Purpose**: Enables stateful conversations by checkpointing the agent's conversation history
+
+```bash
+SQLITE_CHECKPOINT_PATH=./checkpoints.db  # optional, default location
+ENABLE_SHORT_TERM_MEMORY=1
 ```
 
 ### MCP Servers
