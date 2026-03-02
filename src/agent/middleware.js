@@ -61,8 +61,7 @@ export function trimMessagesSafely(messages, maxMessages) {
   return trimmed;
 }
 
-export function createDeleteOldMessagesMiddleware(state) {
-  const maxMessages = SHORT_TERM_MEMORY_MAX_MESSAGES;
+export function createDeleteOldMessagesMiddleware(state, maxMessages = SHORT_TERM_MEMORY_MAX_MESSAGES) {
   const messages = state.messages;
   const length = messages?.length || 0;
   if (length <= maxMessages) return;

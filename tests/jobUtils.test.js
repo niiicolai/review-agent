@@ -82,7 +82,7 @@ describe('jobUtils.js', () => {
         { filename: 'test.txt', status: 'modified', patch: '...' },
       ];
 
-      const result = filterAndBatchPRFiles(files);
+      const result = filterAndBatchPRFiles(files, 10, 20);
       
       expect(result.filesToReview).toHaveLength(2);
       expect(result.batches).toHaveLength(1);
@@ -97,7 +97,7 @@ describe('jobUtils.js', () => {
         patch: '...',
       }));
 
-      const result = filterAndBatchPRFiles(files);
+      const result = filterAndBatchPRFiles(files, 10, 20);
       
       expect(result.filesToReview).toHaveLength(20);
       expect(result.batches).toHaveLength(2);

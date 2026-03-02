@@ -2,7 +2,6 @@ import 'dotenv/config';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { trimMessagesSafely, createDeleteOldMessagesMiddleware } from '../src/agent/middleware.js';
 import { AIMessage, HumanMessage, ToolMessage } from 'langchain';
-import * as middlewareModule from '../src/agent/middleware.js';
 
 describe('middleware.js', () => {
   describe('trimMessagesSafely', () => {
@@ -68,7 +67,7 @@ describe('middleware.js', () => {
         ]
       };
 
-      const result = createDeleteOldMessagesMiddleware(state);
+      const result = createDeleteOldMessagesMiddleware(state, 2);
       
       expect(result).toBeDefined();
       expect(result.messages.length).toBeLessThanOrEqual(2);
@@ -82,7 +81,7 @@ describe('middleware.js', () => {
         ]
       };
 
-      const result = createDeleteOldMessagesMiddleware(state);
+      const result = createDeleteOldMessagesMiddleware(state, 2);
       
       expect(result).toBeUndefined();
     });

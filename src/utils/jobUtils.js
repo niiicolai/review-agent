@@ -6,6 +6,34 @@ const MAX_TOKENS_ALLOWED = parseInt(process.env.MAX_TOKENS_ALLOWED ?? 0) || Infi
 const FILE_EXTENSIONS = process.env.GITHUB_FILE_EXTENSIONS || "js,ts,py,go,java,tsx,rs";
 const MAX_FILES_TO_REVIEW = parseInt(process.env.MAX_FILES_TO_REVIEW || "20");
 const FILES_PER_BATCH = parseInt(process.env.FILES_PER_BATCH || "10");
+const MAX_TOKENS_PER_BATCH = parseInt(process.env.MAX_TOKENS_PER_BATCH || "20000");
+
+function estimateTokens(text) {
+  return Math.ceil(text.length / 4);
+}
+
+export function splitFilesByTokenLimit(files) {
+  const batches = [];
+  let currentBatch = [];
+  let currentTokens = 0;
+
+  for (const file of files) {
+    const fileTokens = estimateTokens(file.patch);
+    if (currentTokens + fileTokens > MAX_TOKENS_PER_BATCH && currentBatch.length > 0) {
+      batches.push(currentBatch);
+      currentBatch = [];
+      currentTokens = 0;
+    }
+    currentBatch.push(file);
+    currentTokens += fileTokens;
+  }
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch);
+  }
+
+  return batches;
+}
 
 export async function checkTokenLimit() {
   const currentTokens = await getTokenCounts();
@@ -16,10 +44,10 @@ export async function checkTokenLimit() {
   return { allowed: true, tokens: currentTokens };
 }
 
-export function filterAndBatchPRFiles(files) {
+export function filterAndBatchPRFiles(files, filesPerBatch=FILES_PER_BATCH, maxFilesToReview=MAX_FILES_TO_REVIEW) {
   const extensions = FILE_EXTENSIONS.split(",").map(e => e.trim());
-  const extRegex = new RegExp(`\\.(${extensions.join("|")})$`);
-  
+  const extRegex = new RegExp(`\\.(${extensions.join("|") })$`);
+
   const reviewableFiles = files.filter(
     f =>
       f.status !== "removed" &&
@@ -27,10 +55,10 @@ export function filterAndBatchPRFiles(files) {
       f.filename.match(extRegex)
   );
 
-  const filesToReview = reviewableFiles.slice(0, MAX_FILES_TO_REVIEW);
+  const filesToReview = reviewableFiles.slice(0, maxFilesToReview);
   const batches = [];
-  for (let i = 0; i < filesToReview.length; i += FILES_PER_BATCH) {
-    batches.push(filesToReview.slice(i, i + FILES_PER_BATCH));
+  for (let i = 0; i < filesToReview.length; i += filesPerBatch) {
+    batches.push(filesToReview.slice(i, i + filesPerBatch));
   }
 
   return {

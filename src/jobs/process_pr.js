@@ -2,7 +2,7 @@ import { getInstallationToken, getPullRequestFiles, postReviewComments } from ".
 import { loadPrompt } from "../prompts/_loadPrompt.js";
 import { agent } from "../agent/agent.js";
 import logger from "../config/logger.js";
-import { checkTokenLimit, parseLLMJsonResponse, filterAndBatchPRFiles } from "../utils/jobUtils.js";
+import { checkTokenLimit, parseLLMJsonResponse, filterAndBatchPRFiles, splitFilesByTokenLimit } from "../utils/jobUtils.js";
 
 export async function processPR(payload) {
   const { repository, pull_request, installation } = payload;
@@ -22,7 +22,8 @@ export async function processPR(payload) {
   const token = await getInstallationToken(installation.id);
 
   const files = await getPullRequestFiles({ token, owner, repo, pullNumber });
-  const { batches } = filterAndBatchPRFiles(files);
+  const { filesToReview } = filterAndBatchPRFiles(files);
+  const batches = splitFilesByTokenLimit(filesToReview);
 
   logger.info({ totalFiles: files.length, batchCount: batches.length }, "Processing PR files");
 
@@ -35,7 +36,7 @@ export async function processPR(payload) {
       allComments.push({
         path: comment.filename,
         body: comment.comment,
-        line: comment.line,
+        line: comment.line, 
       });
     }
   }
