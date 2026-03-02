@@ -44,3 +44,5 @@ jobs:
         env:
           REDIS_URL: redis://localhost:6379
           GITHUB_PRIVATE_KEY: 123
+          SHORT_TERM_MEMORY_MAX_MESSAGES: 2
+          MAX_TOKENS_ALLOWED: 50000
