@@ -19,11 +19,11 @@
 
 ## Why Review Agent?
 
-- 🚀 **Instant Feedback** - Every PR gets reviewed within seconds
-- 💰 **Cost Effective** - Batch processing and token tracking keep costs under control
-- 🔌 **Flexible** - Use OpenAI, Ollama, or any LLM provider
-- 🧠 **Context Aware** - Connect MCP servers for up-to-date documentation
-- 🔒 **Private** - Runs on your infrastructure, your data stays yours
+- **Instant Feedback** - Every PR gets reviewed within seconds
+- **Cost Effective** - Batch processing and token tracking keep costs under control
+- **Flexible** - Use OpenAI, Ollama, or any LLM provider
+- **Context Aware** - Connect MCP servers for up-to-date documentation
+- **Private** - Runs on your infrastructure, your data stays yours
 
 <br />
 
@@ -47,22 +47,22 @@ docker-compose up --build
 
 ## Features
 
-### 🤖 Automated PR Reviews
+### Automated PR Reviews
 Analyzes pull request diffs and posts constructive feedback on bugs, security issues, and performance problems.
 
-### 💬 Intelligent Comment Replies
+### Intelligent Comment Replies
 Responds to @mentions in issues and PRs with context-aware answers powered by AI.
 
-### 🔗 MCP Integration
+### MCP Integration
 Connect to Model Context Protocol servers to give your agent access to up-to-date documentation and tools.
 
-### 📊 Token Monitoring
+### Token Monitoring
 Built-in Redis tracking shows exactly how many tokens you're spending.
 
-### 🔍 Code Search
+### Code Search
 The agent can search your codebase directly to find relevant code and answer questions about your project.
 
-### ⚡ Rate Limiting & Batching
+### Rate Limiting & Batching
 Configure file limits and batch sizes to optimize API usage and avoid rate limits.
 
 <br />
@@ -115,8 +115,12 @@ ENABLE_MCP_CLIENT=1
 ENABLE_SHORT_TERM_MEMORY=1
 
 # Rate limiting
+MAX_TOKENS_PER_BATCH=20000
 MAX_FILES_TO_REVIEW=20
 FILES_PER_BATCH=10
+
+# Limit usage
+MAX_TOKENS_ALLOWED=100000
 ```
 
 ### 3. Add Private Key
