@@ -24,6 +24,8 @@
 - **Flexible** - Use OpenAI, Ollama, or any LLM provider
 - **Context Aware** - Connect MCP servers for up-to-date documentation
 - **Private** - Runs on your infrastructure, your data stays yours
+- **Availability** - Use in public & private repositories
+- **Multi Repository** - Deploy one server to use across multiples repositories
 
 <br />
 
@@ -74,6 +76,20 @@ Configure file limits and batch sizes to optimize API usage and avoid rate limit
 | Node.js   | 20+     |
 | Redis     | Latest  |
 | LLM       | OpenAI / Ollama |
+
+<br />
+
+
+## Examples
+
+### General Security Issues
+![General security demo](/examples/general-security-demo.png)
+
+### Get latest documentation using MCP
+![Latest docs MCP demo](/examples/latest-docs-mcp-demo.png)
+
+### Use internal business logic with RAG
+![Internal docs RAG demo](/examples/internal-docs-rag-demo.png)
 
 <br />
 
@@ -147,7 +163,7 @@ MAX_TOKENS_ALLOWED=100000
 
 ### 3. Add Private Key
 
-Place your GitHub App private key (`private-key.pem`) in the project root.
+Place your GitHub App private key (`private-key.pem`) in the project root or set `GITHUB_PRIVATE_KEY` to the key.
 
 <br />
 
