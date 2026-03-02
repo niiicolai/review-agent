@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { loadPrompt } from '../src/prompts/_loadPrompt.js';
+import { loadPrompt } from '../src/prompts/_load_prompt.js';
 
 describe('loadPrompt', () => {
     beforeEach(() => {

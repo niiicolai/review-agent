@@ -1,8 +1,8 @@
 import { getInstallationToken, postComment } from "../services/github_service.js";
-import { loadPrompt } from "../prompts/_loadPrompt.js";
+import { loadPrompt } from "../prompts/_load_prompt.js";
 import { agent } from "../agent/agent.js";
 import logger from "../config/logger.js";
-import { checkTokenLimit, extractIssueNumber, parseLLMResponse } from "../utils/jobUtils.js";
+import { checkTokenLimit, extractIssueNumber, parseLLMResponse } from "../utils/job_utils.js";
 
 export async function processComment(payload) {
   const { repository, comment, installation } = payload;

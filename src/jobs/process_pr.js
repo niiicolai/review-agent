@@ -1,8 +1,8 @@
 import { getInstallationToken, getPullRequestFiles, postReviewComments } from "../services/github_service.js";
-import { loadPrompt } from "../prompts/_loadPrompt.js";
+import { loadPrompt } from "../prompts/_load_prompt.js";
 import { agent } from "../agent/agent.js";
 import logger from "../config/logger.js";
-import { checkTokenLimit, parseLLMJsonResponse, filterAndBatchPRFiles, splitFilesByTokenLimit } from "../utils/jobUtils.js";
+import { checkTokenLimit, parseLLMJsonResponse, filterAndBatchPRFiles, splitFilesByTokenLimit } from "../utils/job_utils.js";
 
 export async function processPR(payload) {
   const { repository, pull_request, installation } = payload;

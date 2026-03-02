@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { extractIssueNumber, parseLLMResponse, checkTokenLimit, filterAndBatchPRFiles } from '../src/utils/jobUtils.js';
+import { extractIssueNumber, parseLLMResponse, checkTokenLimit, filterAndBatchPRFiles } from '../src/utils/job_utils.js';
 import { AIMessage } from 'langchain';
 import * as tokensModule from '../src/config/tokens.js';
 

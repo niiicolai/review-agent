@@ -97,30 +97,51 @@ Configure file limits and batch sizes to optimize API usage and avoid rate limit
 ### 2. Environment Variables
 
 ```bash
-# Required
+# Redis
 REDIS_URL=redis://localhost:6379
-GITHUB_APP_ID=your_app_id
-GITHUB_WEBHOOK_SECRET=your_webhook_secret
-OPENAI_API_KEY=sk-...
 
-# Optional
+# Web server
 WEB_PORT=3000
-SQLITE_CHECKPOINT_PATH=./checkpoints.db
-GITHUB_BOT_HANDLE=your_bot_username  # GitHub username of your bot app (to detect @mentions and avoid self-replies)
-OLLAMA_URL=http://localhost:11434
-OLLAMA_MODEL=llama3
 API_KEY=your_secure_key
 
+# Logging
+LOG_LEVEL=info
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Ollama
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3
+
+# GitHub
+GITHUB_BOT_HANDLE=your_bot_username  # GitHub username of your bot app (to detect @mentions and avoid self-replies)
+GITHUB_FILE_EXTENSIONS=js,ts,py,go,java,tsx,rs,ruby,cpp
+GITHUB_APP_ID=your_app_id
+GITHUB_WEBHOOK_SECRET=your_webhook_secret
+
 # Features
-ENABLE_MCP_CLIENT=1
 ENABLE_SHORT_TERM_MEMORY=1
+ENABLE_SEARCH_TOOLS=1
+ENABLE_MCP_CLIENT=1
+ENABLE_RAG_TOOL=1
+
+# Vector store (RAG)
+MONGODB_ATLAS_URI=...
+MONGODB_ATLAS_DB_NAME=..
+MONGODB_ATLAS_COLLECTION_NAME=..
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+
+# Short-term memory
+SHORT_TERM_MEMORY_MAX_MESSAGES=2
+SQLITE_CHECKPOINT_PATH=./checkpoints.db
 
 # Rate limiting
 MAX_TOKENS_PER_BATCH=20000
 MAX_FILES_TO_REVIEW=20
 FILES_PER_BATCH=10
 
-# Limit usage
+# Usage limiting
 MAX_TOKENS_ALLOWED=100000
 ```
 
@@ -134,15 +155,15 @@ Place your GitHub App private key (`private-key.pem`) in the project root.
 
 ```
 ┌─────────────┐     ┌─────────────┐     ┌─────────┐     ┌─────────┐     ┌─────────────┐
-│   GitHub     ────▶   Webhook    ────▶  Redis    ────▶  Worker  ────▶  GitHub API  │
+│   GitHub     ────▶   Webhook    ────▶   Redis   ────▶  Worker  ────▶  GitHub API  │
 │   Webhook   │     │   Server    │     │  Queue  │     │         │     │             │
 └─────────────┘     └─────────────┘     └─────────┘     └─────────┘     └─────────────┘
-                                                                                  │
-                                                                                  ▼
-                                                                           ┌─────────────┐
-                                                                           │     LLM     │
-                                                                           │   (GPT-4)   │
-                                                                           └─────────────┘
+                                                                               │
+                                                                               ▼
+                                                                        ┌─────────────┐
+                                                                        │     LLM     │
+                                                                        │   (GPT-4)   │
+                                                                        └─────────────┘
 ```
 
 <br />
@@ -183,6 +204,29 @@ Enable/disable:
 ENABLE_SEARCH_TOOLS=1  # default: enabled
 ```
 
+### RAG (Retrieval-Augmented Generation)
+When `ENABLE_RAG_TOOL=1` is set, the agent can retrieve relevant context from a vector store to answer questions about your documentation, architecture, or any stored knowledge.
+
+- **Use cases**: Answer questions about project docs, architecture decisions, coding standards, troubleshooting guides
+- **Storage**: MongoDB Atlas Vector Search
+- **Enable**:
+```bash
+ENABLE_RAG_TOOL=1  # default: disabled
+```
+
+#### Populating the Vector Store
+Store your `.md` and `.txt` files in the vector store:
+
+```bash
+# Store a single file
+npm run store:vectors -- ./docs/readme.md
+
+# Store all files in a directory
+npm run store:vectors -- ./docs
+```
+
+The script recursively scans for `.md` and `.txt` files, splits them into chunks, and stores them with source metadata.
+
 ### Short-Term Memory
 When `ENABLE_SHORT_TERM_MEMORY=1` is set, the agent persists conversation history using SQLite. This allows the agent to maintain context across multiple interactions within the same thread.
 
@@ -195,8 +239,12 @@ ENABLE_SHORT_TERM_MEMORY=1
 ```
 
 ### MCP Servers
+Enable/disable:
+```bash
+ENABLE_MCP_CLIENT=1  # default: disabled
+```
 ```js
-// src/agent/mcpClient.js
+// src/agent/mcp_client.js
 const mcpClient = new MultiServerMCPClient({  
     server_name: {
         transport: "http",
