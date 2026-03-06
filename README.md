@@ -41,8 +41,11 @@ npm install
 cp .env.example .env
 # Edit .env with your credentials
 
-# Run
-docker-compose up --build
+# Terminal 1
+npm run worker
+
+# Terminal 2
+npm run webhook
 ```
 
 <br />
